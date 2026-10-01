@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
     private var userEmail by mutableStateOf("")
     private var isDarkMode by mutableStateOf(true)
     private var isCelsius by mutableStateOf(true)
+    private var initialScreen by mutableStateOf<Screen>(Screen.Monitor)
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -41,9 +42,18 @@ class MainActivity : ComponentActivity() {
         NotificationHelper.createNotificationChannel(this)
         enableEdgeToEdge()
 
+        val navigateTo = intent?.getStringExtra("NAVIGATE_TO")
+        val startingStage = if (navigateTo == "alerts") {
+            initialScreen = Screen.Alerts
+            userEmail = "Usuario (Notificación)"
+            AppStage.MAIN
+        } else {
+            AppStage.SPLASH
+        }
+
         setContent {
             SegathTheme(darkTheme = isDarkMode) {
-                var appStage by remember { mutableStateOf(AppStage.SPLASH) }
+                var appStage by remember { mutableStateOf(startingStage) }
 
                 if (showPermissionDeniedDialog) {
                     AlertDialog(
@@ -125,6 +135,7 @@ class MainActivity : ComponentActivity() {
                             onDarkModeChanged = { isDarkMode = it },
                             isCelsius = isCelsius,
                             onCelsiusChanged = { isCelsius = it },
+                            initialScreen = initialScreen,
                             onLogout = {
                                 userEmail = ""
                                 appStage = AppStage.LOGIN

@@ -1,6 +1,5 @@
 package com.example.segath.ui.screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -35,10 +34,11 @@ fun MainScreen(
     onDarkModeChanged: (Boolean) -> Unit,
     isCelsius: Boolean,
     onCelsiusChanged: (Boolean) -> Unit,
+    initialScreen: Screen = Screen.Monitor,
     onLogout: () -> Unit
 ) {
     val context = LocalContext.current
-    var currentScreen by remember { mutableStateOf<Screen>(Screen.Monitor) }
+    var currentScreen by remember { mutableStateOf<Screen>(initialScreen) }
     var isLoading by remember { mutableStateOf(false) }
     var isErrorState by remember { mutableStateOf(false) }
 
