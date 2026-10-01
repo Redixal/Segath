@@ -1,5 +1,6 @@
 package com.example.segath.ui.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -30,6 +31,10 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
 @Composable
 fun MainScreen(
     userEmail: String,
+    isDarkMode: Boolean,
+    onDarkModeChanged: (Boolean) -> Unit,
+    isCelsius: Boolean,
+    onCelsiusChanged: (Boolean) -> Unit,
     onLogout: () -> Unit
 ) {
     val context = LocalContext.current
@@ -66,6 +71,11 @@ fun MainScreen(
     }
 
     val unreadAlertsCount = alertsList.size
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val variantColor = MaterialTheme.colorScheme.surfaceVariant
+    val textColor = MaterialTheme.colorScheme.onSurface
+    val mutedColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val bgColor = MaterialTheme.colorScheme.background
 
     Scaffold(
         topBar = {
@@ -77,18 +87,18 @@ fun MainScreen(
                             is Screen.Alerts -> "Segath - Alertas"
                             is Screen.Profile -> "Segath - Mi Perfil"
                         },
-                        color = TextLight
+                        color = textColor
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkSurface
+                    containerColor = surfaceColor
                 )
             )
         },
         bottomBar = {
             NavigationBar(
-                containerColor = DarkSurface,
-                contentColor = NeonGreen
+                containerColor = surfaceColor,
+                contentColor = DarkGreenPrimary
             ) {
                 val items = listOf(Screen.Monitor, Screen.Alerts, Screen.Profile)
                 items.forEach { screen ->
@@ -113,11 +123,11 @@ fun MainScreen(
                         selected = selected,
                         onClick = { currentScreen = screen },
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = NeonGreen,
-                            selectedTextColor = NeonGreen,
-                            unselectedIconColor = TextMuted,
-                            unselectedTextColor = TextMuted,
-                            indicatorColor = DarkSurfaceVariant
+                            selectedIconColor = DarkGreenPrimary,
+                            selectedTextColor = DarkGreenPrimary,
+                            unselectedIconColor = mutedColor,
+                            unselectedTextColor = mutedColor,
+                            indicatorColor = variantColor
                         )
                     )
                 }
@@ -128,7 +138,7 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            color = GloomyBlack
+            color = bgColor
         ) {
             when {
                 isLoading -> {
@@ -145,6 +155,7 @@ fun MainScreen(
                     when (currentScreen) {
                         is Screen.Monitor -> {
                             MonitorScreen(
+                                isCelsius = isCelsius,
                                 onSimulateAlert = { title, desc, isCritical ->
                                     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
                                     val currentTime = timeFormat.format(Date())
@@ -204,6 +215,10 @@ fun MainScreen(
                                 onEmailChanged = { emailAlerts = it },
                                 highTempAlerts = highTempAlerts,
                                 onHighTempChanged = { highTempAlerts = it },
+                                isDarkMode = isDarkMode,
+                                onDarkModeChanged = onDarkModeChanged,
+                                isCelsius = isCelsius,
+                                onCelsiusChanged = onCelsiusChanged,
                                 onLogout = onLogout
                             )
                         }

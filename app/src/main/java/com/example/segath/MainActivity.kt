@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
@@ -24,6 +25,8 @@ enum class AppStage {
 class MainActivity : ComponentActivity() {
     private var showPermissionDeniedDialog by mutableStateOf(false)
     private var userEmail by mutableStateOf("")
+    private var isDarkMode by mutableStateOf(true)
+    private var isCelsius by mutableStateOf(true)
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -39,25 +42,25 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            SegathTheme {
+            SegathTheme(darkTheme = isDarkMode) {
                 var appStage by remember { mutableStateOf(AppStage.SPLASH) }
 
                 if (showPermissionDeniedDialog) {
                     AlertDialog(
                         onDismissRequest = { showPermissionDeniedDialog = false },
-                        title = { Text("Permiso de Notificaciones", color = TextLight) },
+                        title = { Text("Permiso de Notificaciones", color = MaterialTheme.colorScheme.onSurface) },
                         text = {
                             Text(
                                 "Has denegado el permiso de notificaciones. No podrás recibir alertas de gas y temperatura alta en la bandeja de entrada de tu teléfono.",
-                                color = TextMuted
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         },
                         confirmButton = {
                             TextButton(onClick = { showPermissionDeniedDialog = false }) {
-                                Text("Entendido", color = NeonGreen)
+                                Text("Entendido", color = DarkGreenPrimary)
                             }
                         },
-                        containerColor = DarkSurface
+                        containerColor = MaterialTheme.colorScheme.surface
                     )
                 }
 
@@ -118,6 +121,10 @@ class MainActivity : ComponentActivity() {
                     AppStage.MAIN -> {
                         MainScreen(
                             userEmail = userEmail,
+                            isDarkMode = isDarkMode,
+                            onDarkModeChanged = { isDarkMode = it },
+                            isCelsius = isCelsius,
+                            onCelsiusChanged = { isCelsius = it },
                             onLogout = {
                                 userEmail = ""
                                 appStage = AppStage.LOGIN

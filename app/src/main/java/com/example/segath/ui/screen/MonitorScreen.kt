@@ -25,6 +25,7 @@ import kotlin.random.Random
 
 @Composable
 fun MonitorScreen(
+    isCelsius: Boolean,
     onSimulateAlert: (String, String, Boolean) -> Unit
 ) {
     var gasPpm by remember { mutableFloatStateOf(145.2f) }
@@ -55,10 +56,19 @@ fun MonitorScreen(
     }
     val tempColor = if (temperatureC > 33f) WarningOrange else DarkGreenPrimary
 
+    val displayTemp = if (isCelsius) temperatureC else (temperatureC * 9f / 5f) + 32f
+    val tempUnit = if (isCelsius) "°C" else "°F"
+
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val variantColor = MaterialTheme.colorScheme.surfaceVariant
+    val textColor = MaterialTheme.colorScheme.onSurface
+    val mutedColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val bgColor = MaterialTheme.colorScheme.background
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(GloomyBlack)
+            .background(bgColor)
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -66,7 +76,7 @@ fun MonitorScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = DarkSurface)
+            colors = CardDefaults.cardColors(containerColor = surfaceColor)
         ) {
             Row(
                 modifier = Modifier
@@ -79,26 +89,26 @@ fun MonitorScreen(
                     Text(
                         text = "ESTADO DEL SISTEMA",
                         style = MaterialTheme.typography.labelMedium,
-                        color = TextMuted
+                        color = mutedColor
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Arduino Módulo Conectado",
                         style = MaterialTheme.typography.titleMedium,
-                        color = NeonGreen,
+                        color = DarkGreenPrimary,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = "Simulación en Tiempo Real (Placeholder)",
                         style = MaterialTheme.typography.bodySmall,
-                        color = TextMuted
+                        color = mutedColor
                     )
                 }
                 Box(
                     modifier = Modifier
                         .size(14.dp)
                         .clip(CircleShape)
-                        .background(NeonGreen)
+                        .background(DarkGreenPrimary)
                 )
             }
         }
@@ -110,28 +120,35 @@ fun MonitorScreen(
             status = gasStatus,
             statusColor = gasColor,
             progress = (gasPpm / 500f).coerceIn(0f, 1f),
-            accentColor = gasColor
+            accentColor = gasColor,
+            surfaceColor = surfaceColor,
+            variantColor = variantColor,
+            textColor = textColor,
+            mutedColor = mutedColor
         )
 
         SensorCard(
-            title = "Sensor de Temperatura (°C)",
+            title = "Sensor de Temperatura ($tempUnit)",
             icon = Icons.Default.Info,
-            value = String.format(Locale.getDefault(), "%.1f °C", temperatureC),
+            value = String.format(Locale.getDefault(), "%.1f %s", displayTemp, tempUnit),
             status = tempStatus,
             statusColor = tempColor,
             progress = (temperatureC / 60f).coerceIn(0f, 1f),
-            accentColor = tempColor
+            accentColor = tempColor,
+            surfaceColor = surfaceColor,
+            variantColor = variantColor,
+            textColor = textColor,
+            mutedColor = mutedColor
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Debug simulation buttons restored
+        // Dev Simulation Button 1: Gas Alert
         Button(
             onClick = {
-                gasPpm = 350.0f
-                temperatureC = 41.5f
+                gasPpm = 360.0f
                 isSimulatingSpike = true
-                onSimulateAlert("¡Fuga de Gas Detectada!", "Concentración crítica de gas en cocina.", true)
+                onSimulateAlert("¡Fuga de Gas Detectada!", "Concentración crítica de gas (360 PPM).", true)
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = AlertRed),
@@ -139,7 +156,23 @@ fun MonitorScreen(
         ) {
             Icon(Icons.Default.Warning, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Simular Alerta Crítica (Gas / Calor)")
+            Text("Simular Fuga de Gas (Dev)")
+        }
+
+        // Dev Simulation Button 2: Heat Alert
+        Button(
+            onClick = {
+                temperatureC = 42.0f
+                isSimulatingSpike = true
+                onSimulateAlert("¡Temperatura Extrema!", "Calor peligroso detectado (42.0°C).", true)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = WarningOrange),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Icon(Icons.Default.Warning, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Simular Calor Extremo (Dev)")
         }
 
         Button(
@@ -149,10 +182,10 @@ fun MonitorScreen(
                 temperatureC = 27.5f
             },
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = DarkSurfaceVariant),
+            colors = ButtonDefaults.buttonColors(containerColor = variantColor),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Restablecer Valores Normales", color = NeonGreen)
+            Text("Restablecer Valores Normales", color = textColor)
         }
     }
 }
@@ -165,12 +198,16 @@ fun SensorCard(
     status: String,
     statusColor: Color,
     progress: Float,
-    accentColor: Color
+    accentColor: Color,
+    surfaceColor: Color,
+    variantColor: Color,
+    textColor: Color,
+    mutedColor: Color
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface)
+        colors = CardDefaults.cardColors(containerColor = surfaceColor)
     ) {
         Column(
             modifier = Modifier
@@ -187,7 +224,7 @@ fun SensorCard(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(DarkSurfaceVariant),
+                            .background(variantColor),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -201,7 +238,7 @@ fun SensorCard(
                     Text(
                         text = title,
                         style = MaterialTheme.typography.titleMedium,
-                        color = TextLight,
+                        color = textColor,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -222,7 +259,7 @@ fun SensorCard(
                     .height(8.dp)
                     .clip(RoundedCornerShape(4.dp)),
                 color = accentColor,
-                trackColor = DarkSurfaceVariant
+                trackColor = variantColor
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -241,7 +278,7 @@ fun SensorCard(
                 Text(
                     text = "En línea",
                     style = MaterialTheme.typography.bodySmall,
-                    color = TextMuted
+                    color = mutedColor
                 )
             }
         }

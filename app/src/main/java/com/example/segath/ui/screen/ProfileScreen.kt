@@ -29,12 +29,22 @@ fun ProfileScreen(
     onEmailChanged: (Boolean) -> Unit,
     highTempAlerts: Boolean,
     onHighTempChanged: (Boolean) -> Unit,
+    isDarkMode: Boolean,
+    onDarkModeChanged: (Boolean) -> Unit,
+    isCelsius: Boolean,
+    onCelsiusChanged: (Boolean) -> Unit,
     onLogout: () -> Unit
 ) {
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val variantColor = MaterialTheme.colorScheme.surfaceVariant
+    val textColor = MaterialTheme.colorScheme.onSurface
+    val mutedColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val bgColor = MaterialTheme.colorScheme.background
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(GloomyBlack)
+            .background(bgColor)
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -43,7 +53,7 @@ fun ProfileScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = DarkSurface)
+            colors = CardDefaults.cardColors(containerColor = surfaceColor)
         ) {
             Row(
                 modifier = Modifier
@@ -55,13 +65,13 @@ fun ProfileScreen(
                     modifier = Modifier
                         .size(64.dp)
                         .clip(CircleShape)
-                        .background(DarkSurfaceVariant),
+                        .background(variantColor),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = null,
-                        tint = NeonGreen,
+                        tint = DarkGreenPrimary,
                         modifier = Modifier.size(36.dp)
                     )
                 }
@@ -70,23 +80,23 @@ fun ProfileScreen(
                     Text(
                         text = if (userEmail.isNotBlank()) userEmail.substringBefore("@") else "Usuario Segath",
                         style = MaterialTheme.typography.titleLarge,
-                        color = TextLight,
+                        color = textColor,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = if (userEmail.isNotBlank()) userEmail else "Invitado / Sin correo",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextMuted
+                        color = mutedColor
                     )
                 }
             }
         }
 
-        // Section: Preferences
+        // Section: App Appearance & Units
         Text(
-            text = "Preferencias de Alertas y Notificaciones",
+            text = "Configuración General",
             style = MaterialTheme.typography.titleMedium,
-            color = NeonGreen,
+            color = DarkGreenPrimary,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 8.dp)
         )
@@ -94,7 +104,49 @@ fun ProfileScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = DarkSurface)
+            colors = CardDefaults.cardColors(containerColor = surfaceColor)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                SettingSwitchRow(
+                    title = "Modo Oscuro",
+                    subtitle = "Tema negro sombrío activo",
+                    checked = isDarkMode,
+                    onCheckedChange = onDarkModeChanged,
+                    textColor = textColor,
+                    mutedColor = mutedColor
+                )
+                HorizontalDivider(color = variantColor)
+                SettingSwitchRow(
+                    title = "Unidad de Temperatura",
+                    subtitle = if (isCelsius) "Mostrando en Grados Celsius (°C)" else "Mostrando en Fahrenheit (°F)",
+                    checked = isCelsius,
+                    onCheckedChange = onCelsiusChanged,
+                    checkedText = "°C",
+                    uncheckedText = "°F",
+                    textColor = textColor,
+                    mutedColor = mutedColor
+                )
+            }
+        }
+
+        // Section: Preferences
+        Text(
+            text = "Preferencias de Alertas y Notificaciones",
+            style = MaterialTheme.typography.titleMedium,
+            color = DarkGreenPrimary,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = surfaceColor)
         ) {
             Column(
                 modifier = Modifier
@@ -106,21 +158,27 @@ fun ProfileScreen(
                     title = "Notificaciones Push",
                     subtitle = "Alertas instantáneas en dispositivo",
                     checked = pushNotifications,
-                    onCheckedChange = onPushChanged
+                    onCheckedChange = onPushChanged,
+                    textColor = textColor,
+                    mutedColor = mutedColor
                 )
-                HorizontalDivider(color = DarkSurfaceVariant)
+                HorizontalDivider(color = variantColor)
                 SettingSwitchRow(
                     title = "Alertas por Correo",
                     subtitle = "Reportes de gas y temperatura al mail",
                     checked = emailAlerts,
-                    onCheckedChange = onEmailChanged
+                    onCheckedChange = onEmailChanged,
+                    textColor = textColor,
+                    mutedColor = mutedColor
                 )
-                HorizontalDivider(color = DarkSurfaceVariant)
+                HorizontalDivider(color = variantColor)
                 SettingSwitchRow(
                     title = "Alertas de Alta Temperatura",
                     subtitle = "Notificar cuando supere los 35°C",
                     checked = highTempAlerts,
-                    onCheckedChange = onHighTempChanged
+                    onCheckedChange = onHighTempChanged,
+                    textColor = textColor,
+                    mutedColor = mutedColor
                 )
             }
         }
@@ -129,7 +187,7 @@ fun ProfileScreen(
         Text(
             text = "Información y Legal",
             style = MaterialTheme.typography.titleMedium,
-            color = NeonGreen,
+            color = DarkGreenPrimary,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 8.dp)
         )
@@ -137,7 +195,7 @@ fun ProfileScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = DarkSurface)
+            colors = CardDefaults.cardColors(containerColor = surfaceColor)
         ) {
             Column(
                 modifier = Modifier
@@ -148,19 +206,25 @@ fun ProfileScreen(
                 SettingActionRow(
                     icon = Icons.Default.Description,
                     title = "Términos de Servicio",
+                    textColor = textColor,
+                    mutedColor = mutedColor,
                     onClick = { /* Open terms */ }
                 )
-                HorizontalDivider(color = DarkSurfaceVariant)
+                HorizontalDivider(color = variantColor)
                 SettingActionRow(
                     icon = Icons.Default.PrivacyTip,
                     title = "Política de Privacidad",
+                    textColor = textColor,
+                    mutedColor = mutedColor,
                     onClick = { /* Open privacy */ }
                 )
-                HorizontalDivider(color = DarkSurfaceVariant)
+                HorizontalDivider(color = variantColor)
                 SettingActionRow(
                     icon = Icons.Default.Info,
                     title = "Versión de la App",
                     subtitle = "v1.0.0 (Build 2026)",
+                    textColor = textColor,
+                    mutedColor = mutedColor,
                     onClick = {}
                 )
             }
@@ -189,7 +253,11 @@ fun SettingSwitchRow(
     title: String,
     subtitle: String,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    checkedText: String? = null,
+    uncheckedText: String? = null,
+    textColor: Color,
+    mutedColor: Color
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -197,19 +265,30 @@ fun SettingSwitchRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, style = MaterialTheme.typography.bodyLarge, color = TextLight, fontWeight = FontWeight.SemiBold)
-            Text(text = subtitle, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+            Text(text = title, style = MaterialTheme.typography.bodyLarge, color = textColor, fontWeight = FontWeight.SemiBold)
+            Text(text = subtitle, style = MaterialTheme.typography.bodySmall, color = mutedColor)
         }
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = GloomyBlack,
-                checkedTrackColor = NeonGreen,
-                uncheckedThumbColor = TextMuted,
-                uncheckedTrackColor = DarkSurfaceVariant
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (checkedText != null && uncheckedText != null) {
+                Text(
+                    text = if (checked) checkedText else uncheckedText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = DarkGreenPrimary,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color.White,
+                    checkedTrackColor = DarkGreenPrimary,
+                    uncheckedThumbColor = mutedColor,
+                    uncheckedTrackColor = LightSurfaceVariant
+                )
             )
-        )
+        }
     }
 }
 
@@ -218,6 +297,8 @@ fun SettingActionRow(
     icon: ImageVector,
     title: String,
     subtitle: String? = null,
+    textColor: Color,
+    mutedColor: Color,
     onClick: () -> Unit
 ) {
     Surface(
@@ -233,16 +314,16 @@ fun SettingActionRow(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(imageVector = icon, contentDescription = null, tint = NeonGreen)
+                Icon(imageVector = icon, contentDescription = null, tint = DarkGreenPrimary)
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
-                    Text(text = title, style = MaterialTheme.typography.bodyLarge, color = TextLight, fontWeight = FontWeight.SemiBold)
+                    Text(text = title, style = MaterialTheme.typography.bodyLarge, color = textColor, fontWeight = FontWeight.SemiBold)
                     if (subtitle != null) {
-                        Text(text = subtitle, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                        Text(text = subtitle, style = MaterialTheme.typography.bodySmall, color = mutedColor)
                     }
                 }
             }
-            Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, tint = TextMuted)
+            Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, tint = mutedColor)
         }
     }
 }

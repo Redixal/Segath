@@ -26,10 +26,16 @@ fun AlertsScreen(
     alerts: List<AlertItem>,
     onClearAlerts: () -> Unit
 ) {
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val variantColor = MaterialTheme.colorScheme.surfaceVariant
+    val textColor = MaterialTheme.colorScheme.onSurface
+    val mutedColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val bgColor = MaterialTheme.colorScheme.background
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(GloomyBlack)
+            .background(bgColor)
             .padding(16.dp)
     ) {
         Row(
@@ -41,19 +47,19 @@ fun AlertsScreen(
                 Text(
                     text = "Centro de Alertas",
                     style = MaterialTheme.typography.headlineMedium,
-                    color = TextLight,
+                    color = textColor,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "Notificaciones de gas y temperatura alta",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextMuted
+                    color = mutedColor
                 )
             }
 
             if (alerts.isNotEmpty()) {
                 TextButton(onClick = onClearAlerts) {
-                    Text("Limpiar Todo", color = NeonGreen)
+                    Text("Limpiar Todo", color = DarkGreenPrimary)
                 }
             }
         }
@@ -78,12 +84,12 @@ fun AlertsScreen(
                     Text(
                         text = "Sin alertas activas",
                         style = MaterialTheme.typography.titleMedium,
-                        color = TextLight
+                        color = textColor
                     )
                     Text(
                         text = "Los sensores están operando en niveles normales.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextMuted
+                        color = mutedColor
                     )
                 }
             }
@@ -95,7 +101,13 @@ fun AlertsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(alerts) { alert ->
-                    AlertCard(alert = alert)
+                    AlertCard(
+                        alert = alert,
+                        surfaceColor = surfaceColor,
+                        variantColor = variantColor,
+                        textColor = textColor,
+                        mutedColor = mutedColor
+                    )
                 }
             }
         }
@@ -103,17 +115,23 @@ fun AlertsScreen(
 }
 
 @Composable
-fun AlertCard(alert: AlertItem) {
-    val (cardColor, iconTint) = when (alert.severity) {
-        AlertSeverity.CRITICAL -> Pair(DarkSurface, AlertRed)
-        AlertSeverity.WARNING -> Pair(DarkSurface, WarningOrange)
-        AlertSeverity.INFO -> Pair(DarkSurface, NeonGreen)
+fun AlertCard(
+    alert: AlertItem,
+    surfaceColor: androidx.compose.ui.graphics.Color,
+    variantColor: androidx.compose.ui.graphics.Color,
+    textColor: androidx.compose.ui.graphics.Color,
+    mutedColor: androidx.compose.ui.graphics.Color
+) {
+    val iconTint = when (alert.severity) {
+        AlertSeverity.CRITICAL -> AlertRed
+        AlertSeverity.WARNING -> WarningOrange
+        AlertSeverity.INFO -> DarkGreenPrimary
     }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = cardColor)
+        colors = CardDefaults.cardColors(containerColor = surfaceColor)
     ) {
         Row(
             modifier = Modifier
@@ -125,7 +143,7 @@ fun AlertCard(alert: AlertItem) {
                 modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(DarkSurfaceVariant),
+                    .background(variantColor),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -153,13 +171,13 @@ fun AlertCard(alert: AlertItem) {
                     Text(
                         text = alert.title,
                         style = MaterialTheme.typography.titleMedium,
-                        color = TextLight,
+                        color = textColor,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = alert.timestamp,
                         style = MaterialTheme.typography.bodySmall,
-                        color = TextMuted
+                        color = mutedColor
                     )
                 }
 
@@ -168,7 +186,7 @@ fun AlertCard(alert: AlertItem) {
                 Text(
                     text = alert.description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextMuted
+                    color = mutedColor
                 )
             }
         }
